@@ -15,8 +15,8 @@ jobs:
           lfs: true
       - name: Validate HF token
         run: |
-          if [ -z "${{ secrets.SPLITTER_SECRET }}" ]; then
-            echo "Error: SPLITTER_SECRET is not set in repository secrets"; exit 1
+          if [ -z "${{ secrets.SPLITTER_SECRETS }}" ]; then
+            echo "Error: SPLITTER_SECRETS is not set in repository secrets"; exit 1
           fi
 
       - name: Push to Hugging Face Space
