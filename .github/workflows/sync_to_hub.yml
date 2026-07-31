@@ -2,7 +2,6 @@ name: Sync to Hugging Face hub
 on:
   push:
     branches: [main, master, Task/Splitter-Local]
-
   workflow_dispatch:
 
 jobs:
@@ -14,16 +13,11 @@ jobs:
           fetch-depth: 0
           lfs: true
 
-      - name: Validate HF token
-        run: |
-          if [ -z "${{ secrets.SPLITTER_SECRETS }}" ]; then
-            echo "Error: SPLITTER_SECRETS is not set in repository secrets"; exit 1
-          fi
-
-      - name: Push to Hugging Face Space
-        env:
-          HF_TOKEN: ${{ secrets.SPLITTER_SECRETS }}
-        run: |
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git config --global user.name "github-actions[bot]"
-          git push --force https://oauth2:${HF_TOKEN}@huggingface.co/spaces/jesusmanuel1020/Splitter-Local HEAD:main
+      - name: Sync with Hugging Face Space
+        uses: huggingface/hub-sync@v0.1.0
+        with:
+          github_repo_id: ${{ github.repository }}
+          huggingface_repo_id: jesusmanuel1020/Splitter-Local
+          hf_token: ${{ secrets.SPLITTER_SECRETS }}
+          repo_type: space
+          space_sdk: gradio
