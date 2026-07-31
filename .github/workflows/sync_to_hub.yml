@@ -13,7 +13,17 @@ jobs:
         with:
           fetch-depth: 0
           lfs: true
-      - name: Push to hub
+      - name: Validate HF token
+        run: |
+          if [ -z "${{ secrets.SPLITTER_SECRET }}" ]; then
+            echo "Error: SPLITTER_SECRET is not set in repository secrets"; exit 1
+          fi
+
+      - name: Push to Hugging Face Space
         env:
           HF_TOKEN: ${{ secrets.SPLITTER_SECRET }}
-        run: git push --force https://jesusmanuel1020:$HF_TOKEN@huggingface.co/spaces/jesus-camacho/moises-local HEAD:main
+        run: |
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+          git remote set-url origin https://jesusmanuel1020:${HF_TOKEN}@huggingface.co/spaces/jesus-camacho/moises-local
+          git push --force origin HEAD:main
