@@ -1,5 +1,6 @@
 import os
 import sys
+import shutil
 import subprocess
 import librosa
 import ffmpeg
@@ -24,24 +25,21 @@ def process_song(song_id: str):
             storage_dir = os.path.join("storage", song_id)
             original_file = os.path.join(storage_dir, "original.mp3")
             
-            # 1. Run Demucs
-            # htdemucs is the default model. We output to a temporary directory inside storage_dir
+            # 1. Run Demucs (Output temporal dentro de storage_dir)
             demucs_out_dir = os.path.join(storage_dir, "demucs_out")
             
-            # Run demucs via CLI
-            demucs_exe = os.path.join(os.path.dirname(sys.executable), "demucs")
-            if os.name == 'nt':
-                demucs_exe += ".exe"
-                
-            # Ensure absolute path for original_file
             abs_original_file = os.path.abspath(original_file)
             abs_demucs_out_dir = os.path.abspath(demucs_out_dir)
                 
-            # Run demucs using python -m demucs.separate to avoid Windows executable issues
+            # Modelo elegido para evitar sobrecargar RAM/CPU en Hugging Face
+            model_name = "mdx_extra_q"
+
+            # Ejecutar demucs optimizado para entorno CPU de 2 núcleos
             subprocess.run([
                 sys.executable,
                 "-m", "demucs.separate",
-                "-n", "htdemucs",
+                "-n", model_name,
+                "-j", "2",                    # <-- Límite estricto de 2 hilos para evitar bloqueo por cuota
                 "-o", abs_demucs_out_dir,
                 abs_original_file
             ], check=True, capture_output=True)
@@ -51,10 +49,9 @@ def process_song(song_id: str):
             session.add(song)
             session.commit()
 
-            # Demucs creates a folder structure: demucs_out/htdemucs/original/
-            # The original filename without extension is used as the folder name
+            # Demucs crea la estructura: demucs_out/<model_name>/<base_name>/
             base_name = os.path.splitext(os.path.basename(original_file))[0]
-            stems_dir = os.path.join(demucs_out_dir, "htdemucs", base_name)
+            stems_dir = os.path.join(demucs_out_dir, model_name, base_name)
 
             stems = ["vocals", "drums", "bass", "other"]
             
@@ -82,7 +79,6 @@ def process_song(song_id: str):
                 session.commit()
 
             # Clean up demucs output directories
-            import shutil
             if os.path.exists(demucs_out_dir):
                 shutil.rmtree(demucs_out_dir)
 

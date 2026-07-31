@@ -1,28 +1,27 @@
 FROM python:3.10-slim
 
-# Install system dependencies
+# 1. Instalar herramientas del sistema (FFmpeg y RubberBand)
 RUN apt-get update && apt-get install -y \
     ffmpeg \
     rubberband-cli \
     && rm -rf /var/lib/apt/lists/*
 
-# Set working directory
 WORKDIR /app
 
-# Copy requirements first to leverage Docker cache
+# 2. Truco anti-cuota: Instalar PyTorch CPU primero (~150 MB en vez de 2.5 GB)
 COPY requirements.txt .
+RUN pip install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
 
-# Install Python dependencies
+# 3. Instalar el resto de tus dependencias (Demucs ya no intentará bajar CUDA)
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of the application
+# 4. Copiar el código de la aplicación
 COPY . .
 
-# Create storage directory
+# 5. Crear carpetas de trabajo
 RUN mkdir -p storage static
 
-# Expose the port Hugging Face Spaces expects
+# 6. Exponer puerto oficial de Hugging Face Spaces
 EXPOSE 7860
 
-# Command to run the application
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "7860"]
