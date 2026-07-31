@@ -1,0 +1,19 @@
+name: Sync to Hugging Face hub
+on:
+  push:
+    branches: [main, master, Task/Splitter-Local] # <-- Añade tu rama aquí
+
+  workflow_dispatch:
+
+jobs:
+  sync-to-hub:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          lfs: true
+      - name: Push to hub
+        env:
+          HF_TOKEN: ${{ secrets.SPLITTER_SECRET }}
+        run: git push --force https://jesusmanuel1020:$HF_TOKEN@huggingface.co/spaces/jesus-camacho/moises-local HEAD:main
