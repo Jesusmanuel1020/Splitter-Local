@@ -1,7 +1,7 @@
 name: Sync to Hugging Face hub
 on:
   push:
-    branches: [main, master, Task/Splitter-Local] # <-- Añade tu rama aquí
+    branches: [main, master, Task/Splitter-Local]
 
   workflow_dispatch:
 
@@ -13,6 +13,7 @@ jobs:
         with:
           fetch-depth: 0
           lfs: true
+
       - name: Validate HF token
         run: |
           if [ -z "${{ secrets.SPLITTER_SECRETS }}" ]; then
@@ -25,5 +26,4 @@ jobs:
         run: |
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
-          git remote set-url origin https://jesusmanuel1020:${HF_TOKEN}@huggingface.co/spaces/jesusmanuel1020/Splitter-Local
-          git push --force origin HEAD:main
+          git push --force https://oauth2:${HF_TOKEN}@huggingface.co/spaces/jesusmanuel1020/Splitter-Local HEAD:main
