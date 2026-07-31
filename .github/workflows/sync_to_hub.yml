@@ -25,5 +25,5 @@ jobs:
         run: |
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
-          git remote set-url origin https://jesusmanuel1020:${HF_TOKEN}@huggingface.co/spaces/jesus-camacho/moises-local
+          git remote set-url origin https://jesusmanuel1020:${HF_TOKEN}@huggingface.co/spaces/jesusmanuel1020/Splitter-Local
           git push --force origin HEAD:main
