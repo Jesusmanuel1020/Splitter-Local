@@ -7,7 +7,7 @@ sdk: docker
 app_port: 7860
 pinned: false
 ---
-# Moises Local
+# Splitter Local
 
 Una aplicación web local para separación de pistas de audio (stems) y cambio de tonalidad (pitch shifting), optimizada para ejecutarse localmente sin costos de nube.
 
